@@ -1,0 +1,63 @@
+# 우테코 8기 4주차 오픈미션
+작성자 : 박지용
+
+## 🧭 개요
+이 프로젝트는 E북으로 무료 제공되는 "점프 투 스프링부트"를 기반으로 한 
+게시판 구현 + 상품 API 리팩토링 학습용 프로젝트입니다.
+[점프 투 스프링부트](https://wikidocs.net/book/7601)
+
+## 💡 미션 선택 이유
+3년 전에 동일 저자의 책인 점프투파이썬 - flask 편으로 게시판 코드를 만들어본 바 있습니다.
+당시에 Python, Flask + Jinja Template + SQLAlchemy 조합으로 진행해보았습니다.
+[Flask 게시판](https://github.com/JYPark-Code/flask-board)
+
+그 때와 달리, 현재는 Java/Spring에 대한 이해도가 있는 상태에서 Code Along하고,
+책의 완성된 코드 구조를 개선하는 것을 목표로 진행했습니다.
+
+## 🧩 구현 목록
+
+Part 1 - 게시판
+* Entity 설계 및 연관관계 매핑
+* Repository 별 DB 관리
+* 게시 글 상세 보기 (질문 목록 보기)
+* Root URL 적용하기
+* Controller - Repository - Service 계층 분리
+* 상세 페이지 만들기 (Thymeleaf를 이용한 View Template 구성)
+* URL prefix 적용하기
+* 답변 만들기
+* Bootstrap css 적용하기
+* 표준 HTML 구조 적용하기
+* 예외 처리 및 유효성 검증 (Validation)
+* form 활용하기
+
+Part 2 - 게시판
+* Navigation 바 추가
+* 페이징 처리
+* 게시물 번호 부여하기
+* 답변 개수 표시하기
+* Spring Security를 이용한 회원 가입 기능 개발
+* 로그인/로그아웃 구현
+* 글쓴이 항목 추가
+* 수정/삭제 기능 추가하기
+* 추천 기능 추가하기
+* 앵커 기능 추가하기
+* 마크다운 적용하기
+* 검색 기능 추가하기
+
+Part 3 - 상품 관리
+* 
+
+Part 4 - Docker
+* 
+
+
+## ⚙️ 개발 환경
+* IDE: IntelliJ IDEA (Eclipse 미사용)
+* DB: MySQL (기존 예제의 H2 Database 대체)
+* Framework: Spring Boot 3.5.7
+* Template Engine: Thymeleaf
+* Language: Java 21
+* Build Tool: Gradle
+* Docker
+
+

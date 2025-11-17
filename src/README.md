@@ -33,11 +33,22 @@ Part 1 - 게시판
 Part 2 - 게시판
 * Navigation 바 추가
 * 페이징 처리
+  * 테스트 데이터 넣기 (300개)
+  * 최신순으로 Sorting하기.
 * 게시물 번호 부여하기
 * 답변 개수 표시하기
 * Spring Security를 이용한 회원 가입 기능 개발
+  * 비회원 게시판 구경 허용 (Spring Security 로그인 페이지 우선 접속 해제)
+  * 회원 엔티티 구현 및 Service, Controller 구현
+  * 중복 로그인 방지
+  * 책의 Spring Security v6 -> v7로 코드 개선 (Deprecated된 AntPathRequestMatcher 처리) 
 * 로그인/로그아웃 구현
-* 글쓴이 항목 추가
+  * Spring Security 로그인 기준 UserSecurityService 구현하기 (UserSecurityService implement UserDetailsService)
+  * 유저 등급 나누기 (Enum)
+  * 로그인, 로그아웃 상태 템플릿에 적용하기
+* 게시판에 작성자 컬럼 추가
+  * 게시글에 작성자 추가
+  * 답글에 작성자 추가
 * 수정/삭제 기능 추가하기
 * 추천 기능 추가하기
 * 앵커 기능 추가하기
@@ -53,7 +64,7 @@ Part 4 - Docker
 
 ## ⚙️ 개발 환경
 * IDE: IntelliJ IDEA (Eclipse 미사용)
-* DB: MySQL (기존 예제의 H2 Database 대체)
+* DB: MySQL (예제의 H2 Database 대체)
 * Framework: Spring Boot 3.5.7
 * Template Engine: Thymeleaf
 * Language: Java 21

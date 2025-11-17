@@ -2,16 +2,21 @@ package woowatech8.openmission.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import woowatech8.openmission.entity.Question;
+import woowatech8.openmission.entity.SiteUser;
 import woowatech8.openmission.form.AnswerForm;
 import woowatech8.openmission.form.QuestionForm;
 import woowatech8.openmission.repository.QuestionRepository;
 import woowatech8.openmission.service.QuestionService;
+import woowatech8.openmission.service.UserService;
 
+import java.security.Principal;
 import java.util.List;
 
 @RequestMapping("/question")
@@ -19,21 +24,13 @@ import java.util.List;
 @Controller
 public class QuestionController {
 
-//    private final QuestionRepository questionRepository;
     private final QuestionService questionService;
-
-    // Service 구현 전 Repository 에서 List 가져오기.
-//    @GetMapping("/question/list")
-//    public String list(Model model) {
-//        List<Question> questionList = this.questionRepository.findAll();
-//        model.addAttribute("questionList", questionList);
-//        return "question_list";
-//    }
+    private final UserService userService;
 
     @GetMapping("/list")
-    public String list(Model model) {
-        List<Question> questionList = this.questionService.getList();
-        model.addAttribute("questionList", questionList);
+    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Question> paging = this.questionService.getList(page);
+        model.addAttribute("paging", paging);
         return "question_list";
     }
 
@@ -44,18 +41,22 @@ public class QuestionController {
         return "question_detail";
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
     public String questionCreate(QuestionForm questionForm){
         return "question_form";
     }
 
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult) {
+    public String questionCreate(@Valid QuestionForm questionForm,
+                                 BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()){
             return "question_form";
         }
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent());
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
         return "redirect:/question/list";
     }
 

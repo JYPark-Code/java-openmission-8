@@ -52,8 +52,7 @@ public class SecurityConfig {
                         .logout(logout -> logout
                                 .logoutUrl("/user/logout")
                                 .logoutSuccessUrl("/")
-                                .invalidateHttpSession(true)
-                        )
+                                .invalidateHttpSession(true))
 
 
 

@@ -1,4 +1,5 @@
-<html layout:decorate="~{layout}" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+<html layout:decorate="~{layout}" xmlns:layout="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.w3.org/1999/xhtml"
       xmlns:sec="http://www.w3.org/1999/xhtml">
 <body>
 <div layout:fragment="content" class="container my-3">
@@ -36,11 +37,27 @@
             </div>
         </div>
     </div>
+
     <!-- 답변의 갯수 표시 -->
     <h5 class="border-bottom my-3 py-2"
-        th:text="|${#lists.size(question.answerList)}개의 답변이 있습니다.|"></h5>
+        th:text="|${paging.totalElements}개의 답변이 있습니다.|"></h5>
+
+    <!-- 정렬 버튼 표시 -->
+    <div class="d-flex justify-content-end my-2">
+        <a class="btn btn-sm"
+           th:classappend="${sort} == 'latest' ? ' btn-primary' : ' btn-outline-primary'"
+           th:href="@{|/question/detail/${question.id}?page=0&sort=latest|}">
+            최신순
+        </a>
+        <a class="btn btn-sm ms-1"
+           th:classappend="${sort} == 'vote' ? ' btn-primary' : ' btn-outline-primary'"
+           th:href="@{|/question/detail/${question.id}?page=0&sort=vote|}">
+            추천순
+        </a>
+    </div>
+
     <!-- 답변 반복 시작 -->
-    <div class="card my-3" th:each="answer : ${question.answerList}">
+    <div class="card my-3" th:each="answer : ${paging.content}">
         <a th:id="|answer_${answer.id}|"></a>
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(answer.content)}"></div>
@@ -74,31 +91,66 @@
         </div>
     </div>
     <!-- 답변 반복 끝  -->
+
+    <!-- 답변 페이징 -->
+    <div th:if="${paging.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+
+            <!-- 이전 버튼 -->
+            <li class="page-item" th:classappend="${paging.first} ? ' disabled'">
+                <a class="page-link"
+                   th:href="@{|/question/detail/${question.id}?page=${paging.number - 1}&sort=${sort}|}">
+                    이전
+                </a>
+            </li>
+
+            <!-- 페이지 번호들 -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, paging.totalPages - 1)}"
+                th:if="${i >= paging.number - 5 and i <= paging.number + 5}"
+                th:classappend="${i} == ${paging.number} ? ' active'">
+                <a class="page-link"
+                   th:href="@{|/question/detail/${question.id}?page=${i}&sort=${sort}|}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- 다음 버튼 -->
+            <li class="page-item" th:classappend="${paging.last} ? ' disabled'">
+                <a class="page-link"
+                   th:href="@{|/question/detail/${question.id}?page=${paging.number + 1}&sort=${sort}|}">
+                    다음
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <!-- 답변 작성 -->
-    <form th:action="@{|/answer/create/${question.id}|}"  th:object="${answerForm}"  method="post" class="my-3">
+    <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
         <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
         <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
-</div>
-<script layout:fragment="script" type='text/javascript'>
 
+</div>
+
+<script layout:fragment="script" type="text/javascript">
     const delete_elements = document.getElementsByClassName("delete");
     Array.from(delete_elements).forEach(function(element) {
         element.addEventListener('click', function() {
-            if(confirm("정말로 삭제하시겠습니까?")) {
+            if (confirm("정말로 삭제하시겠습니까?")) {
                 location.href = this.dataset.uri;
-            };
+            }
         });
     });
 
     const recommend_elements = document.getElementsByClassName("recommend");
     Array.from(recommend_elements).forEach(function(element) {
         element.addEventListener('click', function() {
-            if(confirm("정말로 추천하시겠습니까?")) {
+            if (confirm("정말로 추천하시겠습니까?")) {
                 location.href = this.dataset.uri;
-            };
+            }
         });
     });
 </script>

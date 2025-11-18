@@ -1,6 +1,10 @@
 package woowatech8.openmission.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import woowatech8.openmission.entity.Answer;
 import woowatech8.openmission.entity.Question;
@@ -36,6 +40,25 @@ public class AnswerService {
         }
     }
 
+    public Page<Answer> getAnswerPage(Question question, int page, String sortCode) {
+        int pageSize = 5; // 한 페이지에 댓글을 몇개 보여줄 것인가
+
+        if("vote".equals(sortCode)) {
+            //추천순 정력
+            Pageable pageable = PageRequest.of(page, pageSize);
+            return answerRepository.findByQuestionOrderByVoteCountDesc(question, pageable);
+        }
+
+        // 기본 : 최신순 정렬
+        Pageable pageable = PageRequest.of(
+                page,
+                pageSize,
+                Sort.by(Sort.Order.desc("createDate"))
+        );
+        return answerRepository.findByQuestion(question, pageable);
+    }
+
+
     public void modify(Answer answer, String content) {
         answer.setContent(content);
         answer.setModifyDate(LocalDateTime.now());
@@ -50,6 +73,8 @@ public class AnswerService {
         answer.getVoter().add(siteUser);
         this.answerRepository.save(answer);
     }
+
+
 
 
 }

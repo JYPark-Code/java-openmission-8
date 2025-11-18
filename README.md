@@ -63,7 +63,9 @@ Part 2 - 게시판
 * 마크다운 적용하기
   * 작성에 마크다운 적용(노션, Github, velog 등)
 * 검색 기능 추가하기
-
+  * 검색 기능 구현하기 1 - JPA Specification 사용. - QuestionService에서 Predicate로 구현
+  * 검색 기능 구현하기 2 - @Query 사용하기. - Repository에서 JPQL로 구현
+  * 검색 화면 만들기
 Part 3 - 상품 관리
 * 
 

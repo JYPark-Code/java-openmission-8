@@ -61,6 +61,7 @@ Part 2 - 게시판
   * 리다이렉트 수정하기
   * 답변 Service, Controller 수정하기
 * 마크다운 적용하기
+  * 작성에 마크다운 적용(노션, Github, velog 등)
 * 검색 기능 추가하기
 
 Part 3 - 상품 관리

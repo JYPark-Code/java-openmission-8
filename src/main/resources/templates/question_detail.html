@@ -1,4 +1,5 @@
-<html layout:decorate="~{layout}" xmlns:layout="http://www.w3.org/1999/xhtml"
+<html layout:decorate="~{layout}"
+      xmlns:layout="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.w3.org/1999/xhtml"
       xmlns:sec="http://www.w3.org/1999/xhtml">
 <body>
@@ -73,6 +74,8 @@
                     <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
+
+            <!-- 상단 인터랙션: 추천 / 수정 / 삭제 / 댓글 버튼 -->
             <div class="my-3">
                 <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
                    th:data-uri="@{|/answer/vote/${answer.id}|}">
@@ -87,6 +90,139 @@
                    class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
                    th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
                    th:text="삭제"></a>
+
+                <!-- 댓글 토글 버튼 (로그인/비로그인 모두 노출) -->
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary ms-1 comment-toggle"
+                        th:data-target-id="|comment-section-${answer.id}|">
+                    댓글
+                </button>
+            </div>
+
+            <!-- 댓글 섹션: Reddit 스타일 (들여쓰기) -->
+            <div class="comment-section mt-2 border-top pt-2"
+                 th:id="|comment-section-${answer.id}|"
+                 style="display:none;">
+
+                <!-- 댓글 리스트 (최상위 + 자식 한 단계) -->
+                <div th:if="${#lists.isEmpty(answer.commentList) == false}">
+                    <div th:each="comment : ${answer.commentList}">
+                        <!-- 최상위 댓글만 -->
+                        <div th:if="${comment.parent == null}" class="mb-3">
+
+                            <!-- 최상위 댓글 -->
+                            <div class="small text-muted">
+                                <strong th:text="${comment.author != null ? comment.author.username : '익명'}"></strong>
+                                ·
+                                <span th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            </div>
+                            <div class="mb-1" th:text="${comment.content}"></div>
+
+                            <!-- (로그인 회원) 댓글 액션 버튼들: 추천 / 수정 / 삭제 -->
+                            <div class="mb-1">
+                                <!-- 추천 -->
+                                <a href="javascript:void(0);"
+                                   class="recommend btn btn-sm btn-outline-secondary py-0 px-1"
+                                   th:data-uri="@{/comment/vote/{id}(id=${comment.id})}"
+                                   sec:authorize="isAuthenticated()">
+                                    추천
+                                    <span class="badge rounded-pill bg-success"
+                                          th:text="${#lists.size(comment.voter)}"></span>
+                                </a>
+
+                                <!-- 수정 -->
+                                <a th:href="@{/comment/modify/{id}(id=${comment.id})}"
+                                   class="btn btn-sm btn-outline-secondary py-0 px-1"
+                                   sec:authorize="isAuthenticated()"
+                                   th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.author.username}">
+                                    수정
+                                </a>
+
+                                <!-- 삭제 -->
+                                <a href="javascript:void(0);"
+                                   class="delete btn btn-sm btn-outline-secondary py-0 px-1"
+                                   sec:authorize="isAuthenticated()"
+                                   th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.author.username}"
+                                   th:data-uri="@{/comment/delete/{id}(id=${comment.id})}">
+                                    삭제
+                                </a>
+                            </div>
+                            <!-- 댓글 액션 버튼들 끝 -->
+
+                            <!-- 이 댓글에 대한 대댓글 작성 폼 -->
+                            <form th:action="@{/comment/create/answer/{id}(id=${answer.id})}"
+                                  method="post"
+                                  th:object="${commentForm}"
+                                  class="mt-1"
+                                  sec:authorize="isAuthenticated()">
+                                <input type="hidden" name="parentId" th:value="${comment.id}"/>
+                                <textarea th:field="*{content}" rows="2"
+                                          class="form-control form-control-sm"
+                                          placeholder="이 댓글에 답글을 남겨보세요"></textarea>
+                                <div class="mt-1 text-end">
+                                    <button type="submit" class="btn btn-sm btn-primary">답글 등록</button>
+                                </div>
+                            </form>
+
+                            <!-- 대댓글들 (한 단계 들여쓰기) -->
+                            <div class="mt-2 ms-4"
+                                 th:each="child : ${comment.children}">
+                                <div class="small text-muted">
+                                    <strong th:text="${child.author != null ? child.author.username : '익명'}"></strong>
+                                    ·
+                                    <span th:text="${#temporals.format(child.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                                </div>
+                                <div class="mb-1" th:text="${child.content}"></div>
+
+                                <!-- 대댓글 수정/삭제/추천 블록 -->
+                                <div class="mb-1">
+                                    <a href="javascript:void(0);"
+                                       class="recommend btn btn-sm btn-outline-secondary py-0 px-1"
+                                       th:data-uri="@{/comment/vote/{id}(id=${child.id})}"
+                                       sec:authorize="isAuthenticated()">
+                                        추천
+                                        <span class="badge rounded-pill bg-success"
+                                              th:text="${#lists.size(child.voter)}"></span>
+                                    </a>
+                                    <a th:href="@{/comment/modify/{id}(id=${child.id})}"
+                                       class="btn btn-sm btn-outline-secondary py-0 px-1"
+                                       sec:authorize="isAuthenticated()"
+                                       th:if="${child.author != null and #authentication.getPrincipal().getUsername() == child.author.username}">
+                                        수정
+                                    </a>
+                                    <a href="javascript:void(0);"
+                                       class="delete btn btn-sm btn-outline-secondary py-0 px-1"
+                                       sec:authorize="isAuthenticated()"
+                                       th:if="${child.author != null and #authentication.getPrincipal().getUsername() == child.author.username}"
+                                       th:data-uri="@{/comment/delete/{id}(id=${child.id})}">
+                                        삭제
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최상위 댓글 작성 폼 -->
+                <form th:action="@{/comment/create/answer/{id}(id=${answer.id})}"
+                      method="post"
+                      th:object="${commentForm}"
+                      class="mt-2"
+                      sec:authorize="isAuthenticated()">
+                    <input type="hidden" name="parentId" value=""/>
+                    <textarea th:field="*{content}" rows="2"
+                              class="form-control"
+                              placeholder="이 답변에 댓글을 남겨보세요"></textarea>
+                    <div class="mt-2 text-end">
+                        <button type="submit" class="btn btn-sm btn-primary">댓글 등록</button>
+                    </div>
+                </form>
+
+                <div sec:authorize="isAnonymous()" class="text-muted small mt-2">
+                    댓글을 남기려면 로그인하세요.
+                </div>
+
             </div>
         </div>
     </div>
@@ -126,32 +262,65 @@
     </div>
 
     <!-- 답변 작성 -->
-    <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
+    <form th:action="@{/answer/create/{id}(id=${question.id})}"
+          th:object="${answerForm}" method="post" class="my-3">
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-        <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
-        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
-        <input type="submit" value="답변등록" class="btn btn-primary my-2">
+        <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}"
+                  class="form-control" rows="10"></textarea>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}"
+                  class="form-control" rows="10"></textarea>
+        <div class="text-end mt-2">
+            <input type="submit" value="답변 등록" class="btn btn-primary">
+        </div>
     </form>
 
 </div>
 
 <script layout:fragment="script" type="text/javascript">
-    const delete_elements = document.getElementsByClassName("delete");
-    Array.from(delete_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            if (confirm("정말로 삭제하시겠습니까?")) {
-                location.href = this.dataset.uri;
-            }
-        });
-    });
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("question_detail script start");
 
-    const recommend_elements = document.getElementsByClassName("recommend");
-    Array.from(recommend_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            if (confirm("정말로 추천하시겠습니까?")) {
-                location.href = this.dataset.uri;
-            }
+        // 삭제 버튼 처리 (질문/답변/댓글 공통)
+        const deleteElements = document.getElementsByClassName("delete");
+        Array.from(deleteElements).forEach(function (element) {
+            element.addEventListener("click", function () {
+                if (confirm("정말로 삭제하시겠습니까?")) {
+                    location.href = this.dataset.uri;
+                }
+            });
         });
+
+        // 추천 버튼 처리 (질문/답변/댓글/answer 공통)
+        const recommendElements = document.getElementsByClassName("recommend");
+        Array.from(recommendElements).forEach(function (element) {
+            element.addEventListener("click", function () {
+                if (confirm("정말로 추천하시겠습니까?")) {
+                    location.href = this.dataset.uri;
+                }
+            });
+        });
+
+        // 댓글 섹션 토글 (로그인/비로그인 모두)
+        const commentButtons = document.getElementsByClassName("comment-toggle");
+        Array.from(commentButtons).forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                const targetId = this.dataset.targetId;
+                const section = document.getElementById(targetId);
+                if (!section) return;
+                const current = section.style.display;
+                section.style.display = (current === "none" || current === "") ? "block" : "none";
+            });
+        });
+
+        // ?openCommentFor={answerId} 있으면 해당 댓글 섹션 자동 오픈
+        const params = new URLSearchParams(window.location.search);
+        const openId = params.get("openCommentFor");
+        if (openId) {
+            const section = document.getElementById("comment-section-" + openId);
+            if (section) {
+                section.style.display = "block";
+            }
+        }
     });
 </script>
 </body>

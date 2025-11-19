@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -17,51 +19,50 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 책에서는 AntPathRequestMatcher를 쓰는데 Deprecated라 해당 부분 change.
-//        http.authorizeHttpRequests((authorizeHttpRequests) ->
-//                authorizeHttpRequests.requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
-//                .csrf((csrf) -> csrf
-//                .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
-//                        .headers((headers) -> headers
-//                .addHeaderWriter(new XFrameOptionsHeaderWriter(
-//                        XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
-//                .formLogin((formLogin) -> formLogin
-//                    .loginPage("/user/login")
-//                    .defaultSuccessUrl("/"))
-//                .logout((logout) -> logout
-//                        .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-//                        .logoutSuccessUrl("/")
-//                        .invalidateHttpSession(true))
-//
-
-
-//        ;
+        // ✅ 1) 지연 저장(Deferred) 말고, 그냥 바로 쓰는 CsrfTokenRequestAttributeHandler 사용
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf"); // 기본 이름, 명시만 해둠
 
         http
-                // CSRF는 개발 단계에서는 꺼두면 편함. (POST 403 방지용)
-//                .csrf(csrf -> csrf.disable())
-                // 모든 요청 허용
+                // ✅ 2) CSRF 유지하되, Session 대신 Cookie 기반으로 저장
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(requestHandler)
+                )
+
+                // ✅ 3) URL 권한 설정 (지금처럼 전부 허용)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll())
+                        .requestMatchers(
+                                "/bootstrap.min.css",
+                                "/style.css",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/h2-console/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/user/login",
+                                "/user/signup"
+                        ).permitAll()
+                        .anyRequest().permitAll()
+                )
 
-                        .formLogin((formLogin) -> formLogin
-                                .loginPage("/user/login")
-                                .defaultSuccessUrl("/"))
-                        .logout(logout -> logout
-                                .logoutUrl("/user/logout")
-                                .logoutSuccessUrl("/")
-                                .invalidateHttpSession(true))
+                // ✅ 4) 로그인 설정
+                .formLogin(form -> form
+                        .loginPage("/user/login")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
 
-
-
-        ;
-
-
-        // formLogin, httpBasic는 disable 안 해도,
-        // anyRequest().authenticated() 같은 게 없으면 로그인 창으로 리다렉트되지 않음.
-
+                // ✅ 5) 로그아웃 설정
+                .logout(logout -> logout
+                        .logoutUrl("/user/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                );
 
         return http.build();
     }

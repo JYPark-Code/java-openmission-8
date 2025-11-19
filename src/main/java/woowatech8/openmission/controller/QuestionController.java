@@ -14,6 +14,7 @@ import woowatech8.openmission.entity.Answer;
 import woowatech8.openmission.entity.Question;
 import woowatech8.openmission.entity.SiteUser;
 import woowatech8.openmission.form.AnswerForm;
+import woowatech8.openmission.form.CommentForm;
 import woowatech8.openmission.form.QuestionForm;
 import woowatech8.openmission.service.AnswerService;
 import woowatech8.openmission.service.QuestionService;
@@ -40,11 +41,15 @@ public class QuestionController {
     }
 
     @GetMapping(value = "/detail/{id}")
-    public String detail(Model model,
+    public String detail(
+                         Model model,
                          @PathVariable("id") Integer id,
                          @RequestParam(value = "page", defaultValue = "0") int page,
                          @RequestParam(value = "sort", defaultValue = "latest") String sort,
-                         AnswerForm answerForm){
+                         AnswerForm answerForm,
+                         CommentForm commentForm
+
+        ){
 
         Question question = this.questionService.getQuestion(id);
         Page<Answer> paging = answerService.getAnswerPage(question, page, sort);

@@ -125,7 +125,7 @@ Part 4 - Docker
 
 4. 게시판 상세페이지
 <img width="1918" height="1314" alt="screencapture-localhost-8080-question-detail-307-2025-11-19-17_36_46" src="https://github.com/user-attachments/assets/c0d05da8-0302-4d1c-80ec-09cd55107717" />
-<img width="1918" height="1617" alt="screencapture-localhost-8080-user-mypage-2025-11-19-17_35_55" src="https://github.com/user-attachments/assets/bcf86e32-2a06-4eb9-ae25-6661bacd51b3" />
+<img width="1918" height="2487" alt="screencapture-localhost-8080-question-detail-306-2025-11-19-17_37_13" src="https://github.com/user-attachments/assets/040570e1-c042-4e06-a9d3-27c75eb6cf97" />
 
 5. 검색 결과
 <img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_38_00" src="https://github.com/user-attachments/assets/c9b0846b-11f8-4741-b3ac-a203edb4688d" />

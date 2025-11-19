@@ -51,7 +51,7 @@ public class QuestionController {
 
         ){
 
-        Question question = this.questionService.getQuestion(id);
+        Question question = questionService.getQuestionAndIncreaseView(id);
         Page<Answer> paging = answerService.getAnswerPage(question, page, sort);
 
         model.addAttribute("question", question);

@@ -36,7 +36,8 @@ public class Question {
     @ManyToMany
     Set<SiteUser> voter;
 
-
+    @Column(nullable = false)
+    private Long viewCount = 0L;
 
 
 }

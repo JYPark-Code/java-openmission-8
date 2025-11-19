@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import woowatech8.openmission.entity.Answer;
 import woowatech8.openmission.entity.Question;
 import woowatech8.openmission.entity.SiteUser;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
@@ -43,7 +45,6 @@ public class QuestionService {
         };
     }
 
-
     public List<Question> getList(){
         return this.questionRepository.findAll();
     }
@@ -55,6 +56,16 @@ public class QuestionService {
         } else {
             throw new DataNotFoundException("question not found");
         }
+    }
+
+    public Question getQuestionAndIncreaseView(Integer id) {
+        Question question = getQuestion(id);      // 같은 트랜잭션 안에서 조회
+        questionRepository.increaseViewCount(id); // JPQL update (트랜잭션 안에서 실행됨)
+
+        // 반환되는 question 객체에도 반영해 두고 싶다면 (optional)
+//        question.setViewCount(question.getViewCount() + 1);
+
+        return question;
     }
 
     public void create(String subject, String content, SiteUser user) {

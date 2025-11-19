@@ -34,6 +34,7 @@ public class SecurityConfig {
 
                 // ✅ 3) URL 권한 설정 (지금처럼 전부 허용)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/user/mypage").authenticated()  // 🔒 마이페이지는 로그인 필요
                         .requestMatchers(
                                 "/bootstrap.min.css",
                                 "/style.css",

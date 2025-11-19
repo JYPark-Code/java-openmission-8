@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import woowatech8.openmission.entity.Question;
+import woowatech8.openmission.entity.SiteUser;
 
 import java.util.List;
 
@@ -36,5 +37,11 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Modifying
     @Query("update Question q set q.viewCount = q.viewCount + 1 where q.id = :id")
     void increaseViewCount(@Param("id") Integer id);
+
+    long countByAuthor(SiteUser author);
+
+    long countByVoter(SiteUser voter);
+
+    List<Question> findTop5ByAuthorOrderByCreateDateDesc(SiteUser author);
 
 }

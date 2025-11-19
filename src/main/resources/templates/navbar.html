@@ -23,8 +23,22 @@
                         </button>
                     </form>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+                    <!-- 🔹 비회원일 때: 회원가입 -->
+                    <a class="nav-link"
+                       sec:authorize="isAnonymous()"
+                       th:href="@{/user/signup}">
+                        회원가입
+                    </a>
+
+                    <!-- 🔹 로그인했을 때: MyPage -->
+                    <a class="nav-link"
+                       sec:authorize="isAuthenticated()"
+                       th:href="@{/user/mypage}">
+                        <span sec:authentication="name"></span> 님의 페이지
+                        <!-- 또는 그냥 "My Page"로 써도 됩니다 -->
+                    </a>
                 </li>
             </ul>
         </div>

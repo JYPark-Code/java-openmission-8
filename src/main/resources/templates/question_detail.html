@@ -112,7 +112,9 @@
                 <div th:if="${#lists.isEmpty(answer.commentList) == false}">
                     <div th:each="comment : ${answer.commentList}">
                         <!-- 최상위 댓글만 -->
-                        <div th:if="${comment.parent == null}" class="mb-3">
+                        <div th:if="${comment.parent == null}"
+                             class="mb-3"
+                             th:attr="id='comment-' + ${comment.id}">
 
                             <!-- 최상위 댓글 -->
                             <div class="small text-muted">
@@ -170,7 +172,8 @@
 
                             <!-- 대댓글들 (한 단계 들여쓰기) -->
                             <div class="mt-2 ms-4"
-                                 th:each="child : ${comment.children}">
+                                 th:each="child : ${comment.children}"
+                                 th:attr="id='comment-' + ${child.id}">
                                 <div class="small text-muted">
                                     <strong th:text="${child.author != null ? child.author.username : '익명'}"></strong>
                                     ·
@@ -323,6 +326,14 @@
             const section = document.getElementById("comment-section-" + openId);
             if (section) {
                 section.style.display = "block";
+            }
+
+            // 해시(#comment-xxx)가 있으면 직접 스크롤
+            if (window.location.hash) {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
             }
         }
     });

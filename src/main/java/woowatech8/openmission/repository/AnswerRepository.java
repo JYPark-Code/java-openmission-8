@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import woowatech8.openmission.entity.Answer;
 import woowatech8.openmission.entity.Question;
+import woowatech8.openmission.entity.SiteUser;
+
+import java.util.List;
 
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     Page<Answer> findByQuestion(Question question, Pageable pageable);
@@ -30,4 +33,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
             @Param("question") Question question,
             Pageable pageable
     );
+
+    long countByAuthor(SiteUser author);
+
+    long countByVoter(SiteUser voter);
+
+    List<Answer> findTop5ByAuthorOrderByCreateDateDesc(SiteUser author);
+
 }

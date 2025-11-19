@@ -110,4 +110,26 @@ Part 4 - Docker
 * Build Tool: Gradle
 * Docker
 
+## :camera: 스크린샷
+1. 게시판 목록 (로그인 전, 로그인 후)
+<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_34_19" src="https://github.com/user-attachments/assets/05abb0bd-b6b8-480a-a43f-431b444ebf1c" />
+<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_35_43" src="https://github.com/user-attachments/assets/c51d40dc-e487-4f66-9322-b733907bd93f" />
+
+2. 로그인 창, 비밀번호 찾기
+<img width="1918" height="1064" alt="screencapture-localhost-8080-user-login-2025-11-19-17_34_49" src="https://github.com/user-attachments/assets/e639d3d2-4edd-4f6e-9ee7-f0384fe2005c" />
+<img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_06" src="https://github.com/user-attachments/assets/4d57a697-9a3b-42c0-a449-efb2e5a2dd50" />
+<img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_23" src="https://github.com/user-attachments/assets/a1860d92-f879-484c-b61f-46101cc0d695" />
+
+3. 마이페이지
+<img width="1918" height="1617" alt="screencapture-localhost-8080-user-mypage-2025-11-19-17_35_55" src="https://github.com/user-attachments/assets/207c664f-931e-4996-b195-272f1c1ba228" />
+
+4. 게시판 상세페이지
+<img width="1918" height="1314" alt="screencapture-localhost-8080-question-detail-307-2025-11-19-17_36_46" src="https://github.com/user-attachments/assets/c0d05da8-0302-4d1c-80ec-09cd55107717" />
+<img width="1918" height="1617" alt="screencapture-localhost-8080-user-mypage-2025-11-19-17_35_55" src="https://github.com/user-attachments/assets/bcf86e32-2a06-4eb9-ae25-6661bacd51b3" />
+
+5. 검색 결과
+<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_38_00" src="https://github.com/user-attachments/assets/c9b0846b-11f8-4741-b3ac-a203edb4688d" />
+
+6. 질문 등록
+<img width="1918" height="1064" alt="screencapture-localhost-8080-question-create-2025-11-19-17_38_29" src="https://github.com/user-attachments/assets/56da3c5e-8305-463d-a16d-0a7d3b3d9b5f" />
 

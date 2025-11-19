@@ -27,6 +27,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -126,20 +127,66 @@ public class UserController {
         return "redirect:/user/mypage";
     }
 
-    // 비밀번호 변경 POST (일단 TODO용 뼈대)
+    // 비밀번호 변경 POST
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/password")
     public String changePassword(Principal principal,
-                                 @RequestParam("currentPassword") String currentPassword,
                                  @RequestParam("newPassword") String newPassword,
                                  @RequestParam("newPasswordConfirm") String newPasswordConfirm,
                                  RedirectAttributes redirectAttributes) {
-        // TODO: 현재 비밀번호 검증 (PasswordEncoder.matches)
-        // TODO: newPassword == newPasswordConfirm 검사
-        // TODO: userService.changePassword(user, newPassword);
+
+        // 1. 새 비밀번호/확인 비밀번호 일치 여부 체크
+        if (!newPassword.equals(newPasswordConfirm)) {
+            redirectAttributes.addFlashAttribute("passwordChangeMessage", "새 비밀번호가 서로 일치하지 않습니다.");
+            return "redirect:/user/mypage";
+        }
+
+        // 2) 최소 길이 등 정책
+        if (newPassword.length() < 8) {
+            redirectAttributes.addFlashAttribute("passwordChangeMessage", "새 비밀번호는 8자 이상이어야 합니다.");
+            return "redirect:/user/mypage";
+        }
+
+        String username = principal.getName();
+        SiteUser user = userService.getUser(username);
+
+        userService.changePassword(user, newPassword);
 
         redirectAttributes.addFlashAttribute("passwordChangeMessage",
-                "비밀번호 변경 기능은 추후 업데이트 예정입니다.");
+                "비밀번호가 변경되었습니다.");
         return "redirect:/user/mypage";
     }
+
+    // 비밀번호 찾기 폼
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm() {
+        return "forgot_password";
+    }
+
+    // 이메일 입력 받아 임시 비밀번호 발급
+    @PostMapping("/forgot-password")
+    public String handleForgotPassword(@RequestParam("email") String email,
+                                       Model model) {
+
+        if (email == null || email.isBlank()) {
+            model.addAttribute("message", "이메일을 입력해주세요.");
+            return "forgot_password";
+        }
+
+        Optional<String> tempPasswordOpt = userService.resetPasswordWithTemp(email);
+
+        // 원래는 알려주지 않는게 보안상 맞으나, 과제용으로 넣음.
+        if (tempPasswordOpt.isEmpty()) {
+            model.addAttribute("message", "해당 이메일로 가입된 계정을 찾을 수 없습니다.");
+            return "forgot_password";
+        }
+
+        String tempPassword = tempPasswordOpt.get();
+        model.addAttribute("message", "임시 비밀번호가 발급되었습니다. 아래 임시 비밀번호로 로그인 후, 마이페이지에서 비밀번호를 변경해주세요.");
+        model.addAttribute("tempPassword", tempPassword);
+
+        return "forgot_password";
+    }
+
+
 }

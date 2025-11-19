@@ -105,6 +105,7 @@
                         th:each="c : ${recentComments}">
                         <a th:href="@{|/question/detail/${c.answer.question.id}?openCommentFor=${c.answer.id}#comment-${c.id}|}">
                         <span th:text="${#strings.abbreviate(c.content, 30)}">댓글 내용</span>
+                        </a>
                         <br>
                         <small th:text="${#temporals.format(c.createDate, 'yyyy-MM-dd HH:mm')}"></small>
                     </li>
@@ -164,13 +165,6 @@
                        th:name="${_csrf.parameterName}"
                        th:value="${_csrf.token}" />
 
-                <div class="mb-3">
-                    <label for="currentPassword" class="form-label">현재 비밀번호</label>
-                    <input id="currentPassword"
-                           name="currentPassword"
-                           type="password"
-                           class="form-control">
-                </div>
 
                 <div class="mb-3">
                     <label for="newPassword" class="form-label">새 비밀번호</label>
@@ -188,8 +182,8 @@
                            class="form-control">
                 </div>
 
-                <button type="submit" class="btn btn-outline-secondary">
-                    비밀번호 변경 (추후 구현 예정)
+                <button type="submit" class="btn btn-primary">
+                    비밀번호 변경
                 </button>
             </form>
         </div>

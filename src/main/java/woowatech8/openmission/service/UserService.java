@@ -13,12 +13,22 @@ import woowatech8.openmission.repository.CommentRepository;
 import woowatech8.openmission.repository.QuestionRepository;
 import woowatech8.openmission.repository.UserRepository;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
+
+    private static final String TEMP_PASSWORD_CHARS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                    "abcdefghijklmnopqrstuvwxyz" +
+                    "0123456789" +
+                    "!@#$%^&*-_=+?";
+
+    private static final int TEMP_PASSWORD_LENGTH = 8;
+    private final SecureRandom random = new SecureRandom();
 
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
@@ -72,11 +82,37 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // (TODO:) 비밀번호 변경
+    // 비밀번호 변경
     @Transactional
     public void changePassword(SiteUser user, String rawNewPassword) {
-        // TODO: 현재 비밀번호 검증 + 비밀번호 정책 체크
         user.setPassword(passwordEncoder.encode(rawNewPassword));
         userRepository.save(user);
+    }
+
+    public Optional<SiteUser> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public String generateTempPassword() {
+        StringBuilder sb = new StringBuilder(TEMP_PASSWORD_LENGTH);
+        for (int i = 0; i < TEMP_PASSWORD_LENGTH; i++) {
+            int idx = random.nextInt(TEMP_PASSWORD_CHARS.length());
+            sb.append(TEMP_PASSWORD_CHARS.charAt(idx));
+        }
+        return sb.toString();
+    }
+
+    public Optional<String> resetPasswordWithTemp(String email) {
+        Optional<SiteUser> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        SiteUser user = optionalUser.get();
+        String tempPassword = generateTempPassword();
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        return Optional.of(tempPassword); // 화면에 보여줄 용
     }
 }

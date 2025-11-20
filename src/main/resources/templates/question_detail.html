@@ -16,7 +16,8 @@
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div class="mb-2">
-                        작성자 : <span th:if="${question.author != null}" th:text="${question.author.username}"></span>
+                        작성자 :
+                        <span th:if="${question.author != null}" th:text="${question.author.username}"></span>
                     </div>
                     <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                     <br/>
@@ -26,11 +27,16 @@
                 </div>
             </div>
             <div class="my-3">
-                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-                   th:data-uri="@{|/question/vote/${question.id}|}">
+                <!-- 질문 추천 버튼: 추천 여부 data-voted 추가 -->
+                <a href="javascript:void(0);"
+                   class="recommend btn btn-sm btn-outline-secondary"
+                   th:data-uri="@{|/question/vote/${question.id}|}"
+                   sec:authorize="isAuthenticated()"
+                   th:data-voted="${#lists.size(question.voter.?[username == #authentication.name]) > 0}">
                     추천
                     <span class="badge rounded-pill bg-success" th:text="${#lists.size(question.voter)}"></span>
                 </a>
+
                 <a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
@@ -81,11 +87,16 @@
 
             <!-- 상단 인터랙션: 추천 / 수정 / 삭제 / 댓글 버튼 -->
             <div class="my-3">
-                <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-                   th:data-uri="@{|/answer/vote/${answer.id}|}">
+                <!-- 답변 추천 버튼: 추천 여부 data-voted 추가 -->
+                <a href="javascript:void(0);"
+                   class="recommend btn btn-sm btn-outline-secondary"
+                   th:data-uri="@{|/answer/vote/${answer.id}|}"
+                   sec:authorize="isAuthenticated()"
+                   th:data-voted="${#lists.size(answer.voter.?[username == #authentication.name]) > 0}">
                     추천
                     <span class="badge rounded-pill bg-success" th:text="${#lists.size(answer.voter)}"></span>
                 </a>
+
                 <a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
@@ -103,12 +114,12 @@
                 </button>
             </div>
 
-            <!-- 댓글 섹션: Reddit 스타일 (들여쓰기) -->
+            <!-- 댓글 섹션 -->
             <div class="comment-section mt-2 border-top pt-2"
                  th:id="|comment-section-${answer.id}|"
-                 style="display:none;">
+                 th:style="${openAnswerId} == ${answer.id} ? 'display:block;' : 'display:none;'">
 
-                <!-- 댓글 리스트 (최상위 + 자식 한 단계) -->
+                <!-- 댓글 리스트 -->
                 <div th:if="${#lists.isEmpty(answer.commentList) == false}">
                     <div th:each="comment : ${answer.commentList}">
                         <!-- 최상위 댓글만 -->
@@ -126,11 +137,12 @@
 
                             <!-- (로그인 회원) 댓글 액션 버튼들: 추천 / 수정 / 삭제 -->
                             <div class="mb-1">
-                                <!-- 추천 -->
+                                <!-- 댓글 추천 버튼: data-voted 추가 -->
                                 <a href="javascript:void(0);"
                                    class="recommend btn btn-sm btn-outline-secondary py-0 px-1"
                                    th:data-uri="@{/comment/vote/{id}(id=${comment.id})}"
-                                   sec:authorize="isAuthenticated()">
+                                   sec:authorize="isAuthenticated()"
+                                   th:data-voted="${#lists.size(comment.voter.?[username == #authentication.name]) > 0}">
                                     추천
                                     <span class="badge rounded-pill bg-success"
                                           th:text="${#lists.size(comment.voter)}"></span>
@@ -170,7 +182,7 @@
                                 </div>
                             </form>
 
-                            <!-- 대댓글들 (한 단계 들여쓰기) -->
+                            <!-- 대댓글들 -->
                             <div class="mt-2 ms-4"
                                  th:each="child : ${comment.children}"
                                  th:attr="id='comment-' + ${child.id}">
@@ -181,16 +193,19 @@
                                 </div>
                                 <div class="mb-1" th:text="${child.content}"></div>
 
-                                <!-- 대댓글 수정/삭제/추천 블록 -->
+                                <!-- 대댓글 액션 버튼들 -->
                                 <div class="mb-1">
+                                    <!-- 대댓글 추천 버튼: data-voted 추가 -->
                                     <a href="javascript:void(0);"
                                        class="recommend btn btn-sm btn-outline-secondary py-0 px-1"
                                        th:data-uri="@{/comment/vote/{id}(id=${child.id})}"
-                                       sec:authorize="isAuthenticated()">
+                                       sec:authorize="isAuthenticated()"
+                                       th:data-voted="${#lists.size(child.voter.?[username == #authentication.name]) > 0}">
                                         추천
                                         <span class="badge rounded-pill bg-success"
                                               th:text="${#lists.size(child.voter)}"></span>
                                     </a>
+
                                     <a th:href="@{/comment/modify/{id}(id=${child.id})}"
                                        class="btn btn-sm btn-outline-secondary py-0 px-1"
                                        sec:authorize="isAuthenticated()"
@@ -297,13 +312,39 @@
             });
         });
 
-        // 추천 버튼 처리 (질문/답변/댓글/answer 공통)
+        // 추천 버튼 처리 (질문/답변/댓글 공통)
         const recommendElements = document.getElementsByClassName("recommend");
         Array.from(recommendElements).forEach(function (element) {
             element.addEventListener("click", function () {
-                if (confirm("정말로 추천하시겠습니까?")) {
-                    location.href = this.dataset.uri;
+                const isVoted = this.dataset.voted === "true";
+                const message = isVoted
+                    ? "이미 추천한 항목입니다. 추천을 취소하시겠습니까?"
+                    : "정말로 추천하시겠습니까?";
+
+                if (!confirm(message)) {
+                    return;
                 }
+
+                // 1) 현재 열려 있는 댓글 섹션(comment-section-XXX) 찾기
+                const sections = Array.from(document.getElementsByClassName("comment-section"));
+                let openAnswerId = null;
+                sections.forEach(sec => {
+                    const display = window.getComputedStyle(sec).display;
+                    if (display !== "none") {
+                        // id 형식: comment-section-123
+                        const idStr = sec.id.replace("comment-section-", "");
+                        openAnswerId = idStr;
+                    }
+                });
+
+                // 2) 원래 uri에 openAnswerId 쿼리 파라미터 붙이기
+                let targetUri = this.dataset.uri;
+                if (openAnswerId !== null) {
+                    const separator = targetUri.includes("?") ? "&" : "?";
+                    targetUri = targetUri + separator + "openAnswerId=" + encodeURIComponent(openAnswerId);
+                }
+
+                location.href = targetUri;
             });
         });
 
@@ -319,9 +360,9 @@
             });
         });
 
-        // ?openCommentFor={answerId} 있으면 해당 댓글 섹션 자동 오픈
+        // ?openAnswerId={answerId} (또는 openCommentFor) 있으면 해당 댓글 섹션 자동 오픈
         const params = new URLSearchParams(window.location.search);
-        const openId = params.get("openCommentFor");
+        const openId = params.get("openAnswerId") || params.get("openCommentFor");
         if (openId) {
             const section = document.getElementById("comment-section-" + openId);
             if (section) {
@@ -332,7 +373,7 @@
             if (window.location.hash) {
                 const target = document.querySelector(window.location.hash);
                 if (target) {
-                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    target.scrollIntoView({behavior: "smooth", block: "start"});
                 }
             }
         }

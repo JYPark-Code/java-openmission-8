@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -98,7 +99,16 @@ public class QuestionService {
     }
 
     public void vote(Question question, SiteUser siteUser){
-        question.getVoter().add(siteUser);
+        Set<SiteUser> voters = question.getVoter();
+
+        if (voters.contains(siteUser)) {
+            // 이미 추천한 경우 → 추천 취소
+            voters.remove(siteUser);
+        } else {
+            // 아직 추천 안 한 경우 → 추천 등록
+            voters.add(siteUser);
+        }
+
         this.questionRepository.save(question);
     }
 

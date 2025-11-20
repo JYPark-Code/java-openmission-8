@@ -62,7 +62,7 @@ public class UserService {
         long answerCount = answerRepository.countByAuthor(user);
         long commentCount = commentRepository.countByAuthor(user);
 
-        long votedQuestionCount = questionRepository.countByAuthor(user);
+        long votedQuestionCount = questionRepository.countByVoter(user);
         long votedAnswerCount = answerRepository.countByVoter(user);
 
         return new UserSummary(

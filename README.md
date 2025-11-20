@@ -61,7 +61,8 @@ MYSQL_ID=your_mysql_username
 MYSQL_PASSWORD=your_mysql_password
 ```
 
-* 어플리케이션 빌드 후, 실행
+* application.yml
+  * 첫줄로 실행 두번째 줄은 도커를 위함.
 
 * Sample DB, 데이터 제공
 두가지 방법 중 1개를 택.
@@ -78,13 +79,17 @@ mysql -u root -p board_db < src/main/resources/sample-data.sql
 
 1. 실행 방법
 
-1-1. 빌드
+1-1. * application.yml
+* 첫줄 주석, 두번째줄 url 실행.
+
+
+1-2. 빌드
 
 ```declarative
 ./gradlew clean build
 ```
 
-1-2. 도커 실행
+1-3. 도커 실행
 
 ```declarative
 docker-compose build
@@ -182,6 +187,15 @@ Part 4 - Docker
 * Dockerfile 작성
 * Docker-compose 작성
 * Docker 실행 확인 -> 컨테이너화 후 작동 확인.
+
+Part 5 - QC, debug, 기능 개선 (+extra)
+* 도커용, local용 DB 링크 url 추가
+* My page - 추천한 질문 - 작성한 질문과 같이 올라가는 것 수정
+* 추천한 게시물 추천 취소 시 추천 안하시겠습니까? Alert 추가
+* 질문, 답글에 추천, 추천취소 토글 적용 (이전 버전 추천 취소가 안됬음)
+* 질문, 답글, 댓글 - 추천 눌렀을 때 Redirect 수정 
+  * 댓글이 열린 상태에서 추천 눌렀을 때, 닫긴 URL로 리다이렉트 하는 것
+    * 오픈 상태값 추적해서 상태 유지.
 
 
 ## :camera: 스크린샷

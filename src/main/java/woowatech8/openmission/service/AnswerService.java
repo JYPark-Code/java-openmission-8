@@ -14,6 +14,7 @@ import woowatech8.openmission.repository.AnswerRepository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -70,7 +71,14 @@ public class AnswerService {
     }
 
     public void vote(Answer answer, SiteUser siteUser){
-        answer.getVoter().add(siteUser);
+        Set<SiteUser> voters = answer.getVoter();
+
+        if (voters.contains(siteUser)) {
+            voters.remove(siteUser);
+        } else {
+            voters.add(siteUser);
+        }
+
         this.answerRepository.save(answer);
     }
 

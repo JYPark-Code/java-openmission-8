@@ -46,8 +46,10 @@ public class QuestionController {
                          @PathVariable("id") Integer id,
                          @RequestParam(value = "page", defaultValue = "0") int page,
                          @RequestParam(value = "sort", defaultValue = "latest") String sort,
+                         @RequestParam(value = "openAnswerId", required = false) Long openAnswerId,
                          AnswerForm answerForm,
-                         CommentForm commentForm
+                         CommentForm commentForm,
+                         Principal principal
 
         ){
 
@@ -57,6 +59,13 @@ public class QuestionController {
         model.addAttribute("question", question);
         model.addAttribute("paging", paging);
         model.addAttribute("sort", sort);
+        model.addAttribute("openAnswerId", openAnswerId);
+
+        // 로그인 유저를 model에 추가
+        if (principal != null) {
+            SiteUser loginUser = userService.getUser(principal.getName());
+            model.addAttribute("loginUser", loginUser);
+        }
 
         return "question_detail";
     }
@@ -122,10 +131,19 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
-    public String questionVote(Principal principal, @PathVariable("id") Integer id) {
+    public String questionVote(Principal principal,
+                               @PathVariable("id") Integer id,
+                               @RequestParam(value = "openAnswerId", required = false) Long openAnswerId
+                               ) {
         Question question = this.questionService.getQuestion(id);
         SiteUser siteUser = this.userService.getUser(principal.getName());
         this.questionService.vote(question, siteUser);
+
+        if (openAnswerId != null) {
+            // 댓글 열린 answer 유지
+            return String.format("redirect:/question/detail/%s?openAnswerId=%s", id, openAnswerId);
+        }
+
         return String.format("redirect:/question/detail/%s", id);
     }
 

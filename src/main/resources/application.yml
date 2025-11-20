@@ -7,7 +7,7 @@ spring:
     # driver-class-name: com.mysql.cj.jdbc.Driver   # 보통 생략해도 자동 감지됨
   jpa:
     hibernate:
-      ddl-auto: update           # 필요에 따라 create / validate 등
+      ddl-auto: create-drop            # 필요에 따라 create / update / validate 등
     defer-datasource-initialization: true  # Hibernate가 테이블 만든 후 SQL 실행
     properties:
       hibernate:

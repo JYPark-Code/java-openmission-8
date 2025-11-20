@@ -90,6 +90,9 @@ mysql -u root -p board_db < src/main/resources/sample-data.sql
 docker-compose build
 docker-compose up
 ```
+## :computer: 성공적으로 띄웠다면, 보이는 화면
+<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-20-14_16_19" src="https://github.com/user-attachments/assets/2396cb55-2ecb-4bf2-9e98-1d71bd1d8fd2" />
+
 
 ## 🧩 구현 목록
 

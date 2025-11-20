@@ -221,7 +221,7 @@ Part 5 - QC, debug, 기능 개선 (+extra)
 6. 질문 등록
 <img width="1918" height="1064" alt="screencapture-localhost-8080-question-create-2025-11-19-17_38_29" src="https://github.com/user-attachments/assets/56da3c5e-8305-463d-a16d-0a7d3b3d9b5f" />
 
-## ERD (Entity Relationship Diagram)
+## :black_nib: ERD (Entity Relationship Diagram)
 
 ```mermaid
 erDiagram
@@ -290,4 +290,67 @@ erDiagram
 
     %% --- Comment -> Answer ---
     Comment }o--|| Answer : "answer"
+```
+
+## :black_nib: 아키텍처
+```declarative
+flowchart LR
+    subgraph Client["Client"]
+        Browser["Browser<br/>(Thymeleaf View)"]
+    end
+
+    subgraph Server["Spring Boot Application"]
+        subgraph Security["Security Layer"]
+            SpringSecurity["Spring Security<br/>(Authentication / Authorization)"]
+        end
+
+        subgraph Web["Web Layer"]
+            Controller["Controllers<br/>(QuestionController,<br/>AnswerController,<br/>CommentController,<br/>UserController)"]
+        end
+
+        subgraph Service["Service Layer"]
+            QuestionService["QuestionService"]
+            AnswerService["AnswerService"]
+            CommentService["CommentService"]
+            UserService["UserService"]
+        end
+
+        subgraph Persistence["Persistence Layer"]
+            QuestionRepo["QuestionRepository"]
+            AnswerRepo["AnswerRepository"]
+            CommentRepo["CommentRepository"]
+            UserRepo["UserRepository"]
+        end
+
+        Util["Common / Util Components<br/>(Markdown, ViewCount, etc.)"]
+    end
+
+    DB[("MySQL Database")]
+
+    %% 흐름
+    Browser -->|"HTTP Request<br/>(/question/list, /detail/{id}, /answer/create ...)"| SpringSecurity
+    SpringSecurity -->|"인증/인가 통과 후"| Controller
+    Controller -->|"비즈니스 로직 위임"| QuestionService
+    Controller -->|"비즈니스 로직 위임"| AnswerService
+    Controller -->|"비즈니스 로직 위임"| CommentService
+    Controller -->|"비즈니스 로직 위임"| UserService
+
+    QuestionService --> QuestionRepo
+    AnswerService   --> AnswerRepo
+    CommentService  --> CommentRepo
+    UserService     --> UserRepo
+
+    QuestionRepo --> DB
+    AnswerRepo   --> DB
+    CommentRepo  --> DB
+    UserRepo     --> DB
+
+    %% 응답
+    Controller -->|"Model + View 반환<br/>(Thymeleaf Template)"| Browser
+
+    %% Util 사용
+    QuestionService -.-> Util
+    AnswerService   -.-> Util
+    CommentService  -.-> Util
+
 ```

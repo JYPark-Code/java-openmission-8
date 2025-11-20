@@ -14,6 +14,63 @@
 그 때와 달리, 현재는 Java/Spring에 대한 이해도가 있는 상태에서 Code Along하고,
 책의 완성된 코드 구조를 개선하는 것을 목표로 진행했습니다.
 
+## ⚙️ 개발 환경
+* IDE: IntelliJ IDEA (Eclipse 미사용)
+* DB: MySQL 8.0.44 (예제의 H2 Database 대체)
+* Framework: Spring Boot 3.5.7
+* Template Engine: Thymeleaf
+* Language: Java 21
+* Build Tool: Gradle
+* Docker
+
+
+## 🚀 프로젝트 실행 방법 - Docker 없는 버전
+
+0. 필수 요구사항
+* Java 21
+* Gradle
+* MySQL 8.x
+* Git Client
+
+1. MySQL 설정
+
+* MySQL에서 데이터베이스 생성
+  * schema.sql 참고
+```sql
+CREATE DATABASE IF NOT EXISTS board_db
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_general_ci;
+```
+* 환경변수 설정
+* 다음 3개의 방법 중 1개 사용.
+  * bash
+```bash
+export MYSQL_ID=your_mysql_username
+export MYSQL_PASSWORD=your_mysql_password
+```
+  * Windows PowerShell
+```PowerShell
+$env:MYSQL_ID="root"
+$env:MYSQL_PASSWORD="1234"
+```
+  * .env 파일
+  프로젝트 파일(openmission) 바로 하위에 .env 파일을 만들고 하단의 내용을 적고 저장.
+    * (물론 your_mysql_username과 pw는 사용자 환경에 맞게 변경)
+```declarative
+MYSQL_ID=your_mysql_username
+MYSQL_PASSWORD=your_mysql_password
+```
+
+* 어플리케이션 빌드 후, 실행
+
+* Sample DB, 데이터 제공
+두가지 방법 중 1개를 택.
+  * resources/sample-data.sql을 data.sql로 바꾸고 실행.
+  * 명령어로 처리
+```declarative
+mysql -u root -p board_db < src/main/resources/sample-data.sql
+```
+
 ## 🧩 구현 목록
 
 Part 1 - 게시판
@@ -100,15 +157,6 @@ Part 3 - Out of Book
 Part 4 - Docker
 * 
 
-
-## ⚙️ 개발 환경
-* IDE: IntelliJ IDEA (Eclipse 미사용)
-* DB: MySQL (예제의 H2 Database 대체)
-* Framework: Spring Boot 3.5.7
-* Template Engine: Thymeleaf
-* Language: Java 21
-* Build Tool: Gradle
-* Docker
 
 ## :camera: 스크린샷
 1. 게시판 목록 (로그인 전, 로그인 후)

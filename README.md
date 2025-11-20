@@ -98,6 +98,138 @@ docker-compose up
 ## :computer: 성공적으로 띄웠다면, 보이는 화면
 <img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-20-14_16_19" src="https://github.com/user-attachments/assets/2396cb55-2ecb-4bf2-9e98-1d71bd1d8fd2" />
 
+## :black_nib: 아키텍처
+```mermaid
+flowchart LR
+    subgraph Client["Client"]
+        Browser["Browser<br/>(Thymeleaf View)"]
+    end
+
+    subgraph Server["Spring Boot Application"]
+        subgraph Security["Security Layer"]
+            SpringSecurity["Spring Security<br/>(Authentication / Authorization)"]
+        end
+
+        subgraph Web["Web Layer"]
+            Controller["Controllers<br/>(QuestionController,<br/>AnswerController,<br/>CommentController,<br/>UserController)"]
+        end
+
+        subgraph Service["Service Layer"]
+            QuestionService["QuestionService"]
+            AnswerService["AnswerService"]
+            CommentService["CommentService"]
+            UserService["UserService"]
+        end
+
+        subgraph Persistence["Persistence Layer"]
+            QuestionRepo["QuestionRepository"]
+            AnswerRepo["AnswerRepository"]
+            CommentRepo["CommentRepository"]
+            UserRepo["UserRepository"]
+        end
+
+        Util["Common / Util Components<br/>(Markdown, ViewCount, etc.)"]
+    end
+
+    DB[("MySQL Database")]
+
+    %% 흐름
+    Browser -->|"HTTP Request<br/>(/question/list, /detail/{id}, /answer/create ...)"| SpringSecurity
+    SpringSecurity -->|"인증/인가 통과 후"| Controller
+    Controller -->|"비즈니스 로직 위임"| QuestionService
+    Controller -->|"비즈니스 로직 위임"| AnswerService
+    Controller -->|"비즈니스 로직 위임"| CommentService
+    Controller -->|"비즈니스 로직 위임"| UserService
+
+    QuestionService --> QuestionRepo
+    AnswerService   --> AnswerRepo
+    CommentService  --> CommentRepo
+    UserService     --> UserRepo
+
+    QuestionRepo --> DB
+    AnswerRepo   --> DB
+    CommentRepo  --> DB
+    UserRepo     --> DB
+
+    %% 응답
+    Controller -->|"Model + View 반환<br/>(Thymeleaf Template)"| Browser
+
+    %% Util 사용
+    QuestionService -.-> Util
+    AnswerService   -.-> Util
+    CommentService  -.-> Util
+
+```
+## :black_nib: ERD (Entity Relationship Diagram)
+
+```mermaid
+erDiagram
+
+    %% ===========================
+    %% ENTITIES
+    %% ===========================
+    SiteUser {
+        Long id PK
+        String username
+        String password
+        String email
+        LocalDateTime createDate
+        String bio
+    }
+
+    Question {
+        Integer id PK
+        String subject
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+        Long viewCount
+    }
+
+    Answer {
+        Integer id PK
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+    }
+
+    Comment {
+        Integer id PK
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+    }
+
+    %% ===========================
+    %% RELATIONSHIPS
+    %% ===========================
+
+    %% --- User authored content ---
+    SiteUser ||--o{ Question : "author"
+    SiteUser ||--o{ Answer   : "author"
+    SiteUser ||--o{ Comment  : "author"
+
+    %% --- Question has Answers ---
+    Question ||--o{ Answer : "answerList"
+
+    %% --- Answer has Comments ---
+    Answer ||--o{ Comment : "commentList"
+
+    %% --- Comment nested structure ---
+    Comment ||--o{ Comment : "children (parent)"
+    Comment }o--|| Comment : "parent"
+
+    %% --- Voter Many-to-Many ---
+    SiteUser }o--o{ Question : "voter"
+    SiteUser }o--o{ Answer   : "voter"
+    SiteUser }o--o{ Comment  : "voter"
+
+    %% --- Answer -> Question ---
+    Answer }o--|| Question : "question"
+
+    %% --- Comment -> Answer ---
+    Comment }o--|| Answer : "answer"
+```
 
 ## 🧩 구현 목록
 
@@ -200,157 +332,23 @@ Part 5 - QC, debug, 기능 개선 (+extra)
 
 ## :camera: 스크린샷
 1. 게시판 목록 (로그인 전, 로그인 후)
-<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_34_19" src="https://github.com/user-attachments/assets/05abb0bd-b6b8-480a-a43f-431b444ebf1c" />
-<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_35_43" src="https://github.com/user-attachments/assets/c51d40dc-e487-4f66-9322-b733907bd93f" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_34_19" src="https://github.com/user-attachments/assets/05abb0bd-b6b8-480a-a43f-431b444ebf1c" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_35_43" src="https://github.com/user-attachments/assets/c51d40dc-e487-4f66-9322-b733907bd93f" />
 
 2. 로그인 창, 비밀번호 찾기
-<img width="1918" height="1064" alt="screencapture-localhost-8080-user-login-2025-11-19-17_34_49" src="https://github.com/user-attachments/assets/e639d3d2-4edd-4f6e-9ee7-f0384fe2005c" />
-<img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_06" src="https://github.com/user-attachments/assets/4d57a697-9a3b-42c0-a449-efb2e5a2dd50" />
-<img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_23" src="https://github.com/user-attachments/assets/a1860d92-f879-484c-b61f-46101cc0d695" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-user-login-2025-11-19-17_34_49" src="https://github.com/user-attachments/assets/e639d3d2-4edd-4f6e-9ee7-f0384fe2005c" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_06" src="https://github.com/user-attachments/assets/4d57a697-9a3b-42c0-a449-efb2e5a2dd50" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-user-forgot-password-2025-11-19-17_39_23" src="https://github.com/user-attachments/assets/a1860d92-f879-484c-b61f-46101cc0d695" />
 
 3. 마이페이지
-<img width="1918" height="1617" alt="screencapture-localhost-8080-user-mypage-2025-11-19-17_35_55" src="https://github.com/user-attachments/assets/207c664f-931e-4996-b195-272f1c1ba228" />
+   <img width="1918" height="1617" alt="screencapture-localhost-8080-user-mypage-2025-11-19-17_35_55" src="https://github.com/user-attachments/assets/207c664f-931e-4996-b195-272f1c1ba228" />
 
 4. 게시판 상세페이지
-<img width="1918" height="1314" alt="screencapture-localhost-8080-question-detail-307-2025-11-19-17_36_46" src="https://github.com/user-attachments/assets/c0d05da8-0302-4d1c-80ec-09cd55107717" />
-<img width="1918" height="2487" alt="screencapture-localhost-8080-question-detail-306-2025-11-19-17_37_13" src="https://github.com/user-attachments/assets/040570e1-c042-4e06-a9d3-27c75eb6cf97" />
+   <img width="1918" height="1314" alt="screencapture-localhost-8080-question-detail-307-2025-11-19-17_36_46" src="https://github.com/user-attachments/assets/c0d05da8-0302-4d1c-80ec-09cd55107717" />
+   <img width="1918" height="2487" alt="screencapture-localhost-8080-question-detail-306-2025-11-19-17_37_13" src="https://github.com/user-attachments/assets/040570e1-c042-4e06-a9d3-27c75eb6cf97" />
 
 5. 검색 결과
-<img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_38_00" src="https://github.com/user-attachments/assets/c9b0846b-11f8-4741-b3ac-a203edb4688d" />
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-question-list-2025-11-19-17_38_00" src="https://github.com/user-attachments/assets/c9b0846b-11f8-4741-b3ac-a203edb4688d" />
 
 6. 질문 등록
-<img width="1918" height="1064" alt="screencapture-localhost-8080-question-create-2025-11-19-17_38_29" src="https://github.com/user-attachments/assets/56da3c5e-8305-463d-a16d-0a7d3b3d9b5f" />
-
-## :black_nib: ERD (Entity Relationship Diagram)
-
-```mermaid
-erDiagram
-
-    %% ===========================
-    %% ENTITIES
-    %% ===========================
-    SiteUser {
-        Long id PK
-        String username
-        String password
-        String email
-        LocalDateTime createDate
-        String bio
-    }
-
-    Question {
-        Integer id PK
-        String subject
-        String content
-        LocalDateTime createDate
-        LocalDateTime modifyDate
-        Long viewCount
-    }
-
-    Answer {
-        Integer id PK
-        String content
-        LocalDateTime createDate
-        LocalDateTime modifyDate
-    }
-
-    Comment {
-        Integer id PK
-        String content
-        LocalDateTime createDate
-        LocalDateTime modifyDate
-    }
-
-    %% ===========================
-    %% RELATIONSHIPS
-    %% ===========================
-
-    %% --- User authored content ---
-    SiteUser ||--o{ Question : "author"
-    SiteUser ||--o{ Answer   : "author"
-    SiteUser ||--o{ Comment  : "author"
-
-    %% --- Question has Answers ---
-    Question ||--o{ Answer : "answerList"
-
-    %% --- Answer has Comments ---
-    Answer ||--o{ Comment : "commentList"
-
-    %% --- Comment nested structure ---
-    Comment ||--o{ Comment : "children (parent)"
-    Comment }o--|| Comment : "parent"
-
-    %% --- Voter Many-to-Many ---
-    SiteUser }o--o{ Question : "voter"
-    SiteUser }o--o{ Answer   : "voter"
-    SiteUser }o--o{ Comment  : "voter"
-
-    %% --- Answer -> Question ---
-    Answer }o--|| Question : "question"
-
-    %% --- Comment -> Answer ---
-    Comment }o--|| Answer : "answer"
-```
-
-## :black_nib: 아키텍처
-```mermaid
-flowchart LR
-    subgraph Client["Client"]
-        Browser["Browser<br/>(Thymeleaf View)"]
-    end
-
-    subgraph Server["Spring Boot Application"]
-        subgraph Security["Security Layer"]
-            SpringSecurity["Spring Security<br/>(Authentication / Authorization)"]
-        end
-
-        subgraph Web["Web Layer"]
-            Controller["Controllers<br/>(QuestionController,<br/>AnswerController,<br/>CommentController,<br/>UserController)"]
-        end
-
-        subgraph Service["Service Layer"]
-            QuestionService["QuestionService"]
-            AnswerService["AnswerService"]
-            CommentService["CommentService"]
-            UserService["UserService"]
-        end
-
-        subgraph Persistence["Persistence Layer"]
-            QuestionRepo["QuestionRepository"]
-            AnswerRepo["AnswerRepository"]
-            CommentRepo["CommentRepository"]
-            UserRepo["UserRepository"]
-        end
-
-        Util["Common / Util Components<br/>(Markdown, ViewCount, etc.)"]
-    end
-
-    DB[("MySQL Database")]
-
-    %% 흐름
-    Browser -->|"HTTP Request<br/>(/question/list, /detail/{id}, /answer/create ...)"| SpringSecurity
-    SpringSecurity -->|"인증/인가 통과 후"| Controller
-    Controller -->|"비즈니스 로직 위임"| QuestionService
-    Controller -->|"비즈니스 로직 위임"| AnswerService
-    Controller -->|"비즈니스 로직 위임"| CommentService
-    Controller -->|"비즈니스 로직 위임"| UserService
-
-    QuestionService --> QuestionRepo
-    AnswerService   --> AnswerRepo
-    CommentService  --> CommentRepo
-    UserService     --> UserRepo
-
-    QuestionRepo --> DB
-    AnswerRepo   --> DB
-    CommentRepo  --> DB
-    UserRepo     --> DB
-
-    %% 응답
-    Controller -->|"Model + View 반환<br/>(Thymeleaf Template)"| Browser
-
-    %% Util 사용
-    QuestionService -.-> Util
-    AnswerService   -.-> Util
-    CommentService  -.-> Util
-
-```
+   <img width="1918" height="1064" alt="screencapture-localhost-8080-question-create-2025-11-19-17_38_29" src="https://github.com/user-attachments/assets/56da3c5e-8305-463d-a16d-0a7d3b3d9b5f" />

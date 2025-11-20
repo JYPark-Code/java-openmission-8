@@ -221,3 +221,73 @@ Part 5 - QC, debug, 기능 개선 (+extra)
 6. 질문 등록
 <img width="1918" height="1064" alt="screencapture-localhost-8080-question-create-2025-11-19-17_38_29" src="https://github.com/user-attachments/assets/56da3c5e-8305-463d-a16d-0a7d3b3d9b5f" />
 
+## ERD (Entity Relationship Diagram)
+
+```mermaid
+erDiagram
+
+    %% ===========================
+    %% ENTITIES
+    %% ===========================
+    SiteUser {
+        Long id PK
+        String username
+        String password
+        String email
+        LocalDateTime createDate
+        String bio
+    }
+
+    Question {
+        Integer id PK
+        String subject
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+        Long viewCount
+    }
+
+    Answer {
+        Integer id PK
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+    }
+
+    Comment {
+        Integer id PK
+        String content
+        LocalDateTime createDate
+        LocalDateTime modifyDate
+    }
+
+    %% ===========================
+    %% RELATIONSHIPS
+    %% ===========================
+
+    %% --- User authored content ---
+    SiteUser ||--o{ Question : "author"
+    SiteUser ||--o{ Answer   : "author"
+    SiteUser ||--o{ Comment  : "author"
+
+    %% --- Question has Answers ---
+    Question ||--o{ Answer : "answerList"
+
+    %% --- Answer has Comments ---
+    Answer ||--o{ Comment : "commentList"
+
+    %% --- Comment nested structure ---
+    Comment ||--o{ Comment : "children (parent)"
+    Comment }o--|| Comment : "parent"
+
+    %% --- Voter Many-to-Many ---
+    SiteUser }o--o{ Question : "voter"
+    SiteUser }o--o{ Answer   : "voter"
+    SiteUser }o--o{ Comment  : "voter"
+
+    %% --- Answer -> Question ---
+    Answer }o--|| Question : "question"
+
+    %% --- Comment -> Answer ---
+    Comment }o--|| Answer : "answer"
+```

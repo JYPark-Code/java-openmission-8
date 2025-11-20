@@ -34,8 +34,8 @@
 
 1. MySQL 설정
 
-* MySQL에서 데이터베이스 생성
-  * schema.sql 참고
+* MySQL에서 데이터베이스 생성 - (자동으로 생성됩니다.)
+  * schema.sql 참고 (안되는 경우 terminal>mysql에서 실행 or mysql Workbench)
 ```sql
 CREATE DATABASE IF NOT EXISTS board_db
   DEFAULT CHARACTER SET utf8mb4
@@ -69,6 +69,26 @@ MYSQL_PASSWORD=your_mysql_password
   * 명령어로 처리
 ```declarative
 mysql -u root -p board_db < src/main/resources/sample-data.sql
+```
+
+## :whale: Docker로 실행
+
+0. 필수 요구 사항
+* Docker 설치, Docker-Compose 설치.(Docker 설치 시 자동으로 포함되서 Install) 
+
+1. 실행 방법
+
+1-1. 빌드
+
+```declarative
+./gradlew clean build
+```
+
+1-2. 도커 실행
+
+```declarative
+docker-compose build
+docker-compose up
 ```
 
 ## 🧩 구현 목록
@@ -155,7 +175,10 @@ Part 3 - Out of Book
   * Transaction 적용
 
 Part 4 - Docker
-* 
+* Docker에 맞게 application.yml 재작성
+* Dockerfile 작성
+* Docker-compose 작성
+* Docker 실행 확인 -> 컨테이너화 후 작동 확인.
 
 
 ## :camera: 스크린샷

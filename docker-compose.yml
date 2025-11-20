@@ -1,0 +1,43 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: board-mysql
+    environment:
+      MYSQL_DATABASE: board_db
+      MYSQL_USER: board_user
+      MYSQL_PASSWORD: board_pass
+      MYSQL_ROOT_PASSWORD: root_pass_1234
+#    ports:
+#      - "3306:3306"   # 로컬에서 DB 직접 보고 싶으면 3307로 열어둠
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot_pass_1234" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_general_ci"
+    ]
+
+  app:
+    build: .
+    container_name: board-app
+    depends_on:
+      db:
+        condition: service_healthy   # healthcheck 통과할 때까지 대기
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: board_db
+      MYSQL_ID: board_user        # application.yml과 이름 맞추기
+      MYSQL_PASSWORD: board_pass  # application.yml과 이름 맞추기
+    restart: on-failure
+
+
+volumes:
+  db-data:

@@ -293,7 +293,7 @@ erDiagram
 ```
 
 ## :black_nib: 아키텍처
-```declarative
+```mermaid
 flowchart LR
     subgraph Client["Client"]
         Browser["Browser<br/>(Thymeleaf View)"]

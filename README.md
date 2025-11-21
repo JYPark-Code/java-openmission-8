@@ -42,7 +42,7 @@ CREATE DATABASE IF NOT EXISTS board_db
   COLLATE utf8mb4_general_ci;
 ```
 * 환경변수 설정
-* 다음 3개의 방법 중 1개 사용.
+다음 3개의 방법 중 1개 사용.
   * bash
 ```bash
 export MYSQL_ID=your_mysql_username
@@ -326,8 +326,8 @@ Part 5 - QC, debug, 기능 개선 (+extra)
 * 추천한 게시물 추천 취소 시 추천 안하시겠습니까? Alert 추가
 * 질문, 답글에 추천, 추천취소 토글 적용 (이전 버전 추천 취소가 안됬음)
 * 질문, 답글, 댓글 - 추천 눌렀을 때 Redirect 수정 
-  * 댓글이 열린 상태에서 추천 눌렀을 때, 닫긴 URL로 리다이렉트 하는 것
-    * 오픈 상태값 추적해서 상태 유지.
+  * 문제: 댓글이 열린 상태에서 추천 눌렀을 때, 닫긴 URL로 리다이렉트 하는 것
+    * 해결: 오픈 상태값 추적해서 상태 유지. -> 추천을 눌러도 기존에 댓글 창이 안 닫기게 수정.
 
 
 ## :camera: 스크린샷
